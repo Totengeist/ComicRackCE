@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Web.Script.Serialization;
 using System.Threading;
 using cYo.Common.ComponentModel;
 using cYo.Common.Runtime;
@@ -218,14 +218,9 @@ namespace cYo.Common.IO
 		{
 			try
 			{
-				BinaryFormatter binaryFormatter = new BinaryFormatter
-				{
-					Binder = new VersionNeutralBinder()
-				};
-				using (Stream serializationStream = File.OpenRead(cacheIndexFile))
-				{
-					return (List<CacheItem>)binaryFormatter.Deserialize(serializationStream);
-				}
+				JavaScriptSerializer serializer = new JavaScriptSerializer();
+				string serializationStream = File.ReadAllText(cacheIndexFile);
+				return serializer.Deserialize<List<CacheItem>>(serializationStream);
 			}
 			catch (Exception)
 			{
@@ -240,19 +235,13 @@ namespace cYo.Common.IO
 				try
 				{
 					CacheIndexDirty = false;
-					BinaryFormatter binaryFormatter = new BinaryFormatter
-					{
-						TypeFormat = FormatterTypeStyle.TypesWhenNeeded
-					};
+					JavaScriptSerializer serializer = new JavaScriptSerializer();
 					List<CacheItem> graph;
 					using (ItemMonitor.Lock(fileList))
 					{
 						graph = fileList.ToList();
 					}
-					using (Stream serializationStream = File.Create(cacheIndexFile))
-					{
-						binaryFormatter.Serialize(serializationStream, graph);
-					}
+					File.WriteAllText(cacheIndexFile, serializer.Serialize(graph));
 				}
 				catch (Exception)
 				{
