@@ -4,8 +4,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
 using cYo.Common;
 using cYo.Common.Collections;
@@ -2668,25 +2666,6 @@ namespace cYo.Projects.ComicRack.Viewer.Config
 			});
 		}
 
-		public static Settings LoadBinary(string file)
-		{
-			try
-			{
-				BinaryFormatter binaryFormatter = new BinaryFormatter
-				{
-					AssemblyFormat = FormatterAssemblyStyle.Simple
-				};
-				using (Stream serializationStream = File.OpenRead(file))
-				{
-					return (Settings)binaryFormatter.Deserialize(serializationStream);
-				}
-			}
-			catch (Exception)
-			{
-				return new Settings();
-			}
-		}
-
 		public static Settings Load(string file)
 		{
 			try
@@ -2698,19 +2677,6 @@ namespace cYo.Projects.ComicRack.Viewer.Config
 			catch (Exception)
 			{
 				return new Settings();
-			}
-		}
-
-		public void SaveBinary(string file)
-		{
-			BinaryFormatter binaryFormatter = new BinaryFormatter
-			{
-				TypeFormat = FormatterTypeStyle.TypesWhenNeeded,
-				AssemblyFormat = FormatterAssemblyStyle.Simple
-			};
-			using (Stream serializationStream = File.Create(file))
-			{
-				binaryFormatter.Serialize(serializationStream, this);
 			}
 		}
 
