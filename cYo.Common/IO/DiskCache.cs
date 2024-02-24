@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime;
 using System.Runtime.Serialization.Formatters;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Web.Script.Serialization;
 using System.Threading;
 using cYo.Common.ComponentModel;
@@ -224,7 +226,21 @@ namespace cYo.Common.IO
 			}
 			catch (Exception)
 			{
-				return new List<CacheItem>();
+				try
+				{
+					BinaryFormatter binaryFormatter = new BinaryFormatter
+					{
+						Binder = new VersionNeutralBinder()
+					};
+					using (Stream serializationStream = File.OpenRead(cacheIndexFile))
+					{
+						return (List<CacheItem>)binaryFormatter.Deserialize(serializationStream);
+					}
+				}
+				catch (Exception)
+				{
+					return new List<CacheItem>();
+				}
 			}
 		}
 
